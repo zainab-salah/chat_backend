@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+       "channels", 
      "chat",
 ]
 REST_FRAMEWORK = {
@@ -135,6 +135,11 @@ ASGI_APPLICATION = "config.asgi.application"
 # Redis as the channel layer
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    }
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],  
+        },
+    },
 }
+
+ 
