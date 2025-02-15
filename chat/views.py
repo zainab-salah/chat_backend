@@ -6,8 +6,10 @@ from rest_framework.views import APIView
 from rest_framework import status
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer, UserSerializer
-
+from .serializers import RegisterSerializer, UserSerializer, ChatRoomSerializer, MessageSerializer
+from rest_framework import generics, permissions
+from .models import ChatRoom, Message
+ 
 # Generate JWT token
 def get_tokens(user):
     refresh = RefreshToken.for_user(user)
@@ -27,3 +29,12 @@ class RegisterView(APIView):
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+# Create & List Chat Rooms
+class ChatRoomListCreateView(generics.ListCreateAPIView):
+    queryset = ChatRoom.objects.all()
+    serializer_class = ChatRoomSerializer
+    permission_classes = [permissions.IsAuthenticated]
