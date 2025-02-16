@@ -10,6 +10,7 @@ from .serializers import RegisterSerializer, UserSerializer, ChatRoomSerializer,
 from rest_framework import generics, permissions
 from .models import ChatRoom, Message
  
+ 
 # Generate JWT token
 def get_tokens(user):
     refresh = RefreshToken.for_user(user)
@@ -43,11 +44,24 @@ class ChatRoomListCreateView(generics.ListCreateAPIView):
 
  
  
-
+# List Messages in a Chat Room
 class MessageListView(generics.ListAPIView):
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         room_name = self.kwargs["room_name"]
+
+ 
+        if not ChatRoom.objects.filter(name=room_name).exists():
+            return Message.objects.none()   
+
         return Message.objects.filter(chatroom__name=room_name).order_by("timestamp")
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        if not queryset.exists():
+            return Response({"message": "No messages found or room does not exist."}, status=status.HTTP_200_OK)
+
+        return super().list(request, *args, **kwargs)
