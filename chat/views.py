@@ -3,7 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework import status,generics, permissions
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer, UserSerializer, ChatRoomSerializer, MessageSerializer
@@ -38,3 +38,16 @@ class ChatRoomListCreateView(generics.ListCreateAPIView):
     queryset = ChatRoom.objects.all()
     serializer_class = ChatRoomSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+
+ 
+ 
+
+class MessageListView(generics.ListAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        room_name = self.kwargs["room_name"]
+        return Message.objects.filter(chatroom__name=room_name).order_by("timestamp")
