@@ -73,7 +73,7 @@ python3 manage.py runserver
 
 #### **2️⃣ Login**
 
-**Endpoint:** `POST /api/token/` **Request Body:**
+**Endpoint:** `POST /api/login/` **Request Body:**
 
 ```json
 {
