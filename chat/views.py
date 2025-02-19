@@ -5,11 +5,11 @@ from rest_framework import status, generics, permissions
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer, ChatRoomSerializer, MessageSerializer
-
 from .models import ChatRoom, Message
 from django.contrib.auth import authenticate
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
+
 
 # Utility function for JWT tokens
 def get_tokens(user):
@@ -20,7 +20,7 @@ def get_tokens(user):
     }
 
 
-# Login API
+# ✅ Login API
 class LoginView(APIView):
     def post(self, request):
         username = request.data.get("username")
@@ -35,7 +35,10 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
         if user:
             return Response(
-                {"user": UserSerializer(user).data, "tokens": get_tokens(user)},
+                {
+                    "user": UserSerializer(user).data,
+                    "tokens": get_tokens(user),
+                },
                 status=status.HTTP_200_OK,
             )
         return Response(
@@ -43,11 +46,10 @@ class LoginView(APIView):
             status=status.HTTP_401_UNAUTHORIZED,
         )
 
-
-# Register API
+# ✅ Register API (Now Uses `UserSerializer`)
 class RegisterView(APIView):
     def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             return Response(
@@ -73,14 +75,19 @@ class MessageListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        room_id = self.kwargs["room_id"]
+        room_id = self.kwargs.get("room_id")
+
         if not ChatRoom.objects.filter(id=room_id).exists():
             return Message.objects.none()
+
         return Message.objects.filter(chatroom_id=room_id).order_by("timestamp")
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        return Response({"messages": MessageSerializer(queryset, many=True).data}, status=status.HTTP_200_OK)
+        return Response(
+            {"messages": MessageSerializer(queryset, many=True).data},
+            status=status.HTTP_200_OK,
+        )
 
 
 class MessageCreateView(CreateAPIView):
@@ -92,12 +99,19 @@ class MessageCreateView(CreateAPIView):
         content = request.data.get("content")
 
         if not chatroom_id or not content:
-            return Response({"error": "chatroom_id and content are required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "chatroom_id and content are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             chatroom = ChatRoom.objects.get(id=chatroom_id)
         except ChatRoom.DoesNotExist:
-            return Response({"error": "Chatroom not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Chatroom not found."}, status=status.HTTP_404_NOT_FOUND
+            )
 
-        message = Message.objects.create(user=request.user, chatroom=chatroom, content=content)
+        message = Message.objects.create(
+            user=request.user, chatroom=chatroom, content=content
+        )
         return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)
