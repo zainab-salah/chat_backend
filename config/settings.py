@@ -1,17 +1,15 @@
 from pathlib import Path
 from datetime import timedelta
 
- 
-BASE_DIR = Path(__file__).resolve().parent.parent
- 
 
- 
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
 SECRET_KEY = "django-insecure-jo17a^3#-hk^7y79b0m_b=c#2-&kpay0$j4jgmsxxr6@cfr+ej"
 
- 
-DEBUG = True
 
-ALLOWED_HOSTS = []
+DEBUG = True
+ 
 
 
 # Application definition
@@ -77,7 +75,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
- 
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -85,8 +83,6 @@ DATABASES = {
     }
 }
 
-
- 
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -103,7 +99,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
- 
+
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
@@ -113,11 +109,9 @@ USE_I18N = True
 USE_TZ = True
 
 
- 
-
 STATIC_URL = "static/"
 
- 
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 

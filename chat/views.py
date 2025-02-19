@@ -115,3 +115,31 @@ class MessageCreateView(CreateAPIView):
             user=request.user, chatroom=chatroom, content=content
         )
         return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)
+
+ 
+
+ 
+
+class MessageDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+    http_method_names = ["delete"]  # ✅ Explicitly allow DELETE
+
+    def delete(self, request, message_id):
+        print(f"🔥 DELETE request received for message ID: {message_id}")  # Log request
+        try:
+            message = Message.objects.get(id=message_id)
+
+            if message.user != request.user:
+                return Response(
+                    {"error": "You can only delete your own messages."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+            message.delete()
+            return Response({"success": "Message deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+        except Message.DoesNotExist:
+            return Response(
+                {"error": "Message not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
