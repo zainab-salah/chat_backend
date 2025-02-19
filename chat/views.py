@@ -46,7 +46,8 @@ class LoginView(APIView):
             status=status.HTTP_401_UNAUTHORIZED,
         )
 
-# ✅ Register API (Now Uses `UserSerializer`)
+
+#  Register API
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -63,10 +64,19 @@ class RegisterView(APIView):
 
 
 # Chat Rooms API
+# class ChatRoomListCreateView(generics.ListCreateAPIView):
+#     queryset = ChatRoom.objects.all()
+#     serializer_class = ChatRoomSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+
+
 class ChatRoomListCreateView(generics.ListCreateAPIView):
     queryset = ChatRoom.objects.all()
     serializer_class = ChatRoomSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
 
 
 # Messages API for a Chat Room
@@ -116,16 +126,12 @@ class MessageCreateView(CreateAPIView):
         )
         return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)
 
- 
-
- 
 
 class MessageDeleteView(APIView):
     permission_classes = [IsAuthenticated]
-    http_method_names = ["delete"]  # ✅ Explicitly allow DELETE
 
     def delete(self, request, message_id):
-        print(f"🔥 DELETE request received for message ID: {message_id}")  # Log request
+
         try:
             message = Message.objects.get(id=message_id)
 
@@ -136,10 +142,44 @@ class MessageDeleteView(APIView):
                 )
 
             message.delete()
-            return Response({"success": "Message deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                {"success": "Message deleted successfully."},
+                status=status.HTTP_204_NO_CONTENT,
+            )
 
         except Message.DoesNotExist:
             return Response(
                 {"error": "Message not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+
+class ChatRoomDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, room_id):
+        try:
+            chatroom = ChatRoom.objects.get(id=room_id)
+
+            if chatroom.creator != request.user:
+                return Response(
+                    {"error": "You can only delete rooms you created."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+            # Delete all messages in the chatroom
+            chatroom.messages.all().delete()
+
+            # Delete the chatroom itself
+            chatroom.delete()
+
+            return Response(
+                {"success": "Chatroom and its messages deleted successfully."},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+
+        except ChatRoom.DoesNotExist:
+            return Response(
+                {"error": "Chatroom not found."},
                 status=status.HTTP_404_NOT_FOUND,
             )

@@ -18,10 +18,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 
  
+
+
 class ChatRoomSerializer(serializers.ModelSerializer):
+    creator = serializers.StringRelatedField(read_only=True)  
+
     class Meta:
         model = ChatRoom
-        fields = ["id", "name", "created_at"]
+        fields = ['id', 'name', 'created_at', 'creator']
+
 
 
  
