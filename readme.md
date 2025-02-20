@@ -87,8 +87,14 @@ python3 manage.py runserver
 **Response:**
 ```json
 {
-    "refresh": "<refresh_token>",
-    "access": "<access_token>"
+    "user": {
+        "id": 1,
+        "username": "john",
+    },
+    "tokens": {
+        "refresh": "<refresh_token>",
+        "access": "<access_token>"
+    }
 }
 ```
 
@@ -254,9 +260,9 @@ socket.onmessage = function(event) {
 ## **🔹 Testing**
 
 1. Register & Login (`/api/register/`, `/api/login/`)
-2. Create & Join Room (`/api/chatrooms/`)
-3. Connect WebSocket (`ws://...`), send messages
-4. Fetch chat history (`/api/messages/<room_id>/`)
+2. Get, Create , Delete & Join Room (`/api/chatrooms/`)
+3. Get, Create & Delete (`/api/messages/`)
+4. Connect WebSocket (`ws://...`), send messages
 
 ## **🛠️ Deployment**
 
