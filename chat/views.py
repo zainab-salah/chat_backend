@@ -11,7 +11,7 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 
 
-# Utility function for JWT tokens
+ 
 def get_tokens(user):
     refresh = RefreshToken.for_user(user)
     return {
@@ -20,7 +20,7 @@ def get_tokens(user):
     }
 
 
-# ✅ Login API
+ 
 class LoginView(APIView):
     def post(self, request):
         username = request.data.get("username")

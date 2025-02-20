@@ -46,15 +46,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 await self.send(json.dumps({'error': 'Message content is required.'}))
                 return
 
-            # ✅ Ensure user is authenticated
+        
             if self.user.is_anonymous:
                 await self.send(json.dumps({'error': 'Authentication required.'}))
                 return
 
-            # ✅ Save message to database
+        
             message = await self.save_message(self.room_id, self.user, message_content)
 
-            # ✅ Broadcast message to all connected users
+      
             event = {
                 'type': 'chat_message',
                 'room_id': self.room_id,
@@ -64,13 +64,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'date': message.timestamp.isoformat(),
             }
 
-            await self.channel_layer.group_send(self.room_group_name, event)  # Use self.room_group_name here
+            await self.channel_layer.group_send(self.room_group_name, event)  
 
         except json.JSONDecodeError as e:
             await self.send(json.dumps({'error': f'Invalid JSON format: {str(e)}'}))
 
     async def chat_message(self, event):
-        # ✅ Broadcast message event to WebSocket clients
+      
         await self.send(text_data=json.dumps({
             'room_id': event['room_id'],
             'user': event['user'],
@@ -82,8 +82,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @sync_to_async
     def save_message(self, room_id, user, message_content):
         """Save the new message to the database"""
-        chatroom, created = ChatRoom.objects.get_or_create(name=room_id)
-        
+        #chatroom, created = ChatRoom.objects.get_or_create(name=room_id)
+        chatroom, created = ChatRoom.objects.get_or_create(name=room_id, defaults={"creator": user})
+
         message = Message.objects.create(
             user=user,
             chatroom=chatroom,

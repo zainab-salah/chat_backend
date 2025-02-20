@@ -45,12 +45,13 @@ python3 manage.py runserver
 
 #### **1️⃣ Register User**
 
-**Endpoint:** `POST /api/register/` **Request Body:**
+**Endpoint:** `POST /api/register/`
+
+**Request Body:**
 
 ```json
 {
     "username": "john",
-    "email": "john@example.com",
     "password": "password123"
 }
 ```
@@ -62,7 +63,6 @@ python3 manage.py runserver
     "user": {
         "id": 1,
         "username": "john",
-        "email": "john@example.com"
     },
     "tokens": {
         "refresh": "<refresh_token>",
@@ -73,7 +73,9 @@ python3 manage.py runserver
 
 #### **2️⃣ Login**
 
-**Endpoint:** `POST /api/login/` **Request Body:**
+**Endpoint:** `POST /api/login/`
+
+**Request Body:**
 
 ```json
 {
@@ -108,8 +110,9 @@ python3 manage.py runserver
 ```
 
 #### **4️⃣ Create Chat Room**
-**Endpoint:** `POST /api/chatrooms/` **Headers:**
+**Endpoint:** `POST /api/chatrooms/`
 
+**Headers:**
 ```json
 {
     "Authorization": "Bearer <access_token>"
@@ -133,8 +136,9 @@ python3 manage.py runserver
 
 #### **5️⃣ Fetch Chat History**
 
-**Endpoint:** `GET /api/messages/<room_name>/` **Headers:**
+**Endpoint:** `GET /api/messages/<room_id>/`
 
+**Headers:**
 ```json
 {
     "Authorization": "Bearer <access_token>"
@@ -154,16 +158,86 @@ python3 manage.py runserver
 ]
 ```
 
+#### **6️⃣ Create Message**
+
+**Endpoint:** `POST /api/messages/create/`
+
+**Headers:**
+```json
+{
+    "Authorization": "Bearer <access_token>"
+}
+```
+
+**Request Body:**
+
+```json
+{
+    "chatroom_id": 1,
+    "content": "Hello, world!"
+}
+```
+
+**Response:**
+
+```json
+{
+    "id": 1,
+    "chatroom": 1,
+    "user": 1,
+    "content": "Hello, world!",
+    "timestamp": "2024-02-15T12:00:00Z"
+}
+```
+
+#### **7️⃣ Delete Message**
+
+**Endpoint:** `DELETE /api/messages/delete/<message_id>/`
+
+**Headers:**
+```json
+{
+    "Authorization": "Bearer <access_token>"
+}
+```
+
+**Response:**
+
+```json
+{
+    "success": "Message deleted successfully."
+}
+```
+
+#### **8️⃣ Delete Chat Room**
+
+**Endpoint:** `DELETE /api/chatrooms/delete/<room_id>/`
+
+**Headers:**
+```json
+{
+    "Authorization": "Bearer <access_token>"
+}
+```
+
+**Response:**
+
+```json
+{
+    "success": "Chatroom and its messages deleted successfully."
+}
+```
+
 ## **🔹 WebSocket**
 
 ```bash
-ws://127.0.0.1:8000/ws/chat/<room_name>/?token=<JWT>
+ws://127.0.0.1:8000/ws/chat/<room_id>/?token=<JWT>
 ```
 
 **Example WebSocket Connection:**
 
 ```javascript
-let socket = new WebSocket("ws://127.0.0.1:8000/ws/chat/room1/?token=YOUR_JWT_TOKEN");
+let socket = new WebSocket("ws://127.0.0.1:8000/ws/chat/1/?token=YOUR_JWT_TOKEN");
 
 socket.onopen = function() {
     console.log("Connected to WebSocket");
@@ -179,15 +253,12 @@ socket.onmessage = function(event) {
 
 ## **🔹 Testing**
 
-1. Register & Login (`/api/register/`, `/api/token/`)
+1. Register & Login (`/api/register/`, `/api/login/`)
 2. Create & Join Room (`/api/chatrooms/`)
 3. Connect WebSocket (`ws://...`), send messages
-4. Fetch chat history (`/api/messages/room1/`)
+4. Fetch chat history (`/api/messages/<room_id>/`)
 
 ## **🛠️ Deployment**
 
 ```bash
 daphne -b 127.0.0.1 -p 8000 config.asgi:application
-```
-
-

@@ -1,5 +1,5 @@
 import django
-django.setup()  # ✅ Explicitly load Django apps before imports
+django.setup()  
 
 from urllib.parse import parse_qs
 from channels.db import database_sync_to_async
